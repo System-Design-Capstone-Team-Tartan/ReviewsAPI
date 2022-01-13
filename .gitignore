@@ -41,6 +41,12 @@ build/Release
 node_modules/
 jspm_packages/
 
+# CSV Starter Data
+data/characteristic_review.csv
+data/characteristics.csv
+data/reviews_photos.csv
+data/reviews.csv
+
 # TypeScript v1 declaration files
 typings/
 
