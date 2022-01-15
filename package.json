@@ -18,7 +18,9 @@
   },
   "homepage": "https://github.com/System-Design-Capstone-Team-Tartan/ReviewsAPI#readme",
   "dependencies": {
-    "express": "^4.17.2"
+    "express": "^4.17.2",
+    "express-promise-router": "^4.1.1",
+    "pg": "^8.7.1"
   },
   "devDependencies": {
     "eslint": "^8.6.0",
