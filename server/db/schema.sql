@@ -60,13 +60,13 @@ ALTER TABLE REVIEW_PHOTOS
 
 /*ETL PROCESS */
 
-COPY CHARACTERISTICS FROM '/data/characteristsics.csv' DELIMITER ',' CSV HEADER;
+COPY CHARACTERISTICS FROM '/home/dareitus/hackreactor/live/SDC/reviews/ReviewsAPI/data/characteristics.csv' DELIMITER ',' CSV HEADER;
 
-COPY REVIEW_CHARACTERISTICS FROM '/data/characteristic_reviews.csv' DELIMITER ',' CSV HEADER;
+COPY REVIEW_CHARACTERISTICS FROM '/home/dareitus/hackreactor/live/SDC/reviews/ReviewsAPI/data/characteristic_reviews.csv' DELIMITER ',' CSV HEADER;
 
-COPY REVIEW_PHOTOS FROM '/data/reviews_photos.csv' DELIMITER ',' CSV HEADER;
+COPY REVIEW_PHOTOS FROM '/home/dareitus/hackreactor/live/SDC/reviews/ReviewsAPI/data/reviews_photos.csv' DELIMITER ',' CSV HEADER;
 
-COPY REVIEWS FROM '/data/reviews.csv' DELIMITER ',' CSV HEADER;
+COPY REVIEWS FROM '/home/dareitus/hackreactor/live/SDC/reviews/ReviewsAPI/data/reviews.csv' DELIMITER ',' CSV HEADER;
 
 
 /* META TABLE AND COMPOSITES - TODO */
