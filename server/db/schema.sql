@@ -1,34 +1,10 @@
 DROP TABLE IF EXISTS CHARACTERISTICS, REVIEW_CHARACTERISTICS, REVIEW_PHOTOS, REVIEWS, META;
+DROP TABLE IF EXISTS review, review_characteristics, characteristic, review_photos;
 
-/* Table 'CHARACTERISTICS' */
-CREATE TABLE CHARACTERISTICS(
+/* Table 'review' */
+CREATE TABLE review(
   id integer NOT NULL,
-  PRODUCTS_id integer NOT NULL,
-  "name" varchar,
-  PRIMARY KEY(id)
-);
-
-/* Table 'REVIEW_CHARACTERISTICS' */
-CREATE TABLE REVIEW_CHARACTERISTICS(
-  id integer NOT NULL,
-  CHARACTERISTICS_id integer NOT NULL,
-  REVIEWS_id integer NOT NULL,
-  value integer,
-  PRIMARY KEY(id)
-);
-
-/* Table 'REVIEW_PHOTOS' */
-CREATE TABLE REVIEW_PHOTOS(
-  id integer NOT NULL,
-  REVIEWS_id integer NOT NULL,
-  url varchar,
-  PRIMARY KEY(id)
-);
-
-/* Table 'REVIEWS' */
-CREATE TABLE REVIEWS(
-  id integer NOT NULL,
-  PRODUCTS_id integer NOT NULL,
+  products_id integer,
   rating integer,
   date date,
   summary varchar,
@@ -42,76 +18,55 @@ CREATE TABLE REVIEWS(
   PRIMARY KEY(id)
 );
 
-/* Relation 'CHARACTERISTICS_REVIEW_CHARACTERISTICS' */
-ALTER TABLE REVIEW_CHARACTERISTICS
-  ADD CONSTRAINT CHARACTERISTICS_REVIEW_CHARACTERISTICS
-    FOREIGN KEY (CHARACTERISTICS_id) REFERENCES CHARACTERISTICS (id);
-
-/* Relation 'REVIEWS_REVIEW_CHARACTERISTICS' */
-ALTER TABLE REVIEW_CHARACTERISTICS
-  ADD CONSTRAINT REVIEWS_REVIEW_CHARACTERISTICS
-    FOREIGN KEY (REVIEWS_id) REFERENCES REVIEWS (id);
-
-/* Relation 'REVIEWS_REVIEWS_PHOTOS' */
-ALTER TABLE REVIEW_PHOTOS
-  ADD CONSTRAINT REVIEWS_REVIEWS_PHOTOS
-    FOREIGN KEY (REVIEWS_id) REFERENCES REVIEWS (id);
-
-
-/*ETL PROCESS */
-
-COPY CHARACTERISTICS FROM '/home/dareitus/hackreactor/live/SDC/reviews/ReviewsAPI/data/characteristics.csv' DELIMITER ',' CSV HEADER;
-
-COPY REVIEW_CHARACTERISTICS FROM '/home/dareitus/hackreactor/live/SDC/reviews/ReviewsAPI/data/characteristic_reviews.csv' DELIMITER ',' CSV HEADER;
-
-COPY REVIEW_PHOTOS FROM '/home/dareitus/hackreactor/live/SDC/reviews/ReviewsAPI/data/reviews_photos.csv' DELIMITER ',' CSV HEADER;
-
-COPY REVIEWS FROM '/home/dareitus/hackreactor/live/SDC/reviews/ReviewsAPI/data/reviews.csv' DELIMITER ',' CSV HEADER;
-
-
-/* META TABLE AND COMPOSITES - TODO */
-
-/* Composite 'CHARACTERISTIC' */
-CREATE TYPE CHARACTERISTIC AS
-  (
-    0 integer,
-    ".5" integer,
-    1 integer,
-    "1.5" integer,
-    2 integer
-  );
-
-/* Composite 'CHARACTERISTICS' */
-CREATE TYPE CHARACTERISTICS AS ("name" CHARACTERISTIC);
-
-/* Composite 'RATINGS' */
-CREATE TYPE RATINGS AS
-  (
-    1 integer,
-    2 integer,
-    3 integer,
-    4 integer,
-    5 integer
-  );
-
-/* Composite 'RECOMMENDED' */
-CREATE TYPE RECOMMENDED AS (0 integer, 1 integer);
-
-/* Table 'META' */
-CREATE TABLE META(
+/* Table 'review_characteristics' */
+CREATE TABLE review_characteristics(
   id integer NOT NULL,
-  ratings RATINGS,
-  recommended RECOMMENDED,
-  "characteristics" CHARACTERISTICS,
+  characteristic_id integer NOT NULL,
+  review_id integer NOT NULL,
+  "value" integer,
   PRIMARY KEY(id)
 );
 
-/* Relation 'META_REVIEWS' */
-ALTER TABLE REVIEWS
-  ADD CONSTRAINT META_REVIEWS FOREIGN KEY (PRODUCTS_id) REFERENCES META (id)
-  ;
+/* Table 'characteristic' */
+CREATE TABLE characteristic(
+  id integer NOT NULL,
+  product_id integer,
+  "name" varchar,
+  PRIMARY KEY(id)
+);
 
-/* Relation 'META_CHARACTERISTICS' */
-ALTER TABLE CHARACTERISTICS
-  ADD CONSTRAINT META_CHARACTERISTICS
-    FOREIGN KEY (PRODUCTS_id) REFERENCES META (id);
+/* Table 'review_photos' */
+CREATE TABLE review_photos(
+  id integer NOT NULL,
+  review_id integer NOT NULL,
+  url varchar,
+  PRIMARY KEY(id)
+);
+
+/* Relation 'review_review_photos' */
+ALTER TABLE review_photos
+  ADD CONSTRAINT review_review_photos
+    FOREIGN KEY (review_id) REFERENCES review (id);
+
+/* Relation 'characteristic_review_characteristics' */
+ALTER TABLE review_characteristics
+  ADD CONSTRAINT characteristic_review_characteristics
+    FOREIGN KEY (characteristic_id) REFERENCES characteristic (id);
+
+/* Relation 'review_review_characteristics' */
+ALTER TABLE review_characteristics
+  ADD CONSTRAINT review_review_characteristics
+    FOREIGN KEY (review_id) REFERENCES review (id);
+
+COPY review FROM '/home/dareitus/hackreactor/live/SDC/reviews/ReviewsAPI/data/reviews.csv' DELIMITER ',' CSV HEADER;
+
+COPY characteristic FROM '/home/dareitus/hackreactor/live/SDC/reviews/ReviewsAPI/data/characteristics.csv' DELIMITER ',' CSV HEADER;
+
+COPY review_characteristics FROM '/home/dareitus/hackreactor/live/SDC/reviews/ReviewsAPI/data/characteristic_reviews.csv' DELIMITER ',' CSV HEADER;
+
+COPY review_photos FROM '/home/dareitus/hackreactor/live/SDC/reviews/ReviewsAPI/data/reviews_photos.csv' DELIMITER ',' CSV HEADER;
+
+-- sudo service postgresql start
+-- sudo service postgresql status
+-- sudo -u postgres psql -d reviews -f server/db/schema.sql
+-- sudo -u postgres psql reviews
