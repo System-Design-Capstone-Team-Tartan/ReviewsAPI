@@ -8,14 +8,27 @@ app.listen(port, () => {
   console.log(`Server Running at: http://localhost:${port}`);
 });
 
+// getAllReviews = imported model
+const getAllReviews = (id) => {
+  return new Promise((resolve) => {
+    // model to get data from db
+    resolve('DATA FROM MODEL GOES HERE', id);
+  });
+};
+
+async function getAll(id) {
+  const data = await getAllReviews(id);
+  return data;
+}
+
 app.get('/', (req, res) => {
-  // page, count, sort, product_id
   res.send('Test Index');
 });
 
 app.get('/reviews/', (req, res) => {
   // page, count, sort, product_id
-  res.send('Review Get Request');
+  const data = getAll(req.body.product_id);
+  res.send('Review Get Request', data);
 });
 
 app.get('/reviews/meta', (req, res) => {
