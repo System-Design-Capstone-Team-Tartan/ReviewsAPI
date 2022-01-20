@@ -1,7 +1,7 @@
 const express = require('express');
+const pool = require('./db');
 
 const app = express();
-
 const port = 3000;
 
 app.listen(port, () => {
@@ -12,17 +12,31 @@ app.get('/', (req, res) => {
   res.send('Test Index');
 });
 
-// getAllReviews = imported model
-const getAllReviews = async (id) => {
-  // const data = await (model to get data from db)
-  console.log(id); // this is temp to hush airbnb
-  return id; // return data
+// Model for getting ALL reviews for a product_id
+const getAllReviews = async (id, page, count) => {
+  try {
+    const endIndex = (page + 1) * count;
+    const startIndex = endIndex - count;
+    const data = await pool.query(`SELECT * FROM review
+      WHERE product_id = ${id}
+      [ LIMIT { ${count} | ALL } ] [ OFFSET ${startIndex}]`);
+    return data; // return data
+  } catch (err) {
+    return err;
+  }
 };
 
 app.get('/reviews/', async (req, res) => { // async says this callback function has an await
   // page, count, sort, product_id
   try { // try this first - attempt the await function
-    const data = await getAllReviews(req.body.product_id); // call the getAllReviews async function
+    const id = req.query.product_id || -1;
+    if (id === -1) {
+      res.send('Bad Request');
+    }
+    const page = req.query.page || 0;
+    const count = req.query.count || 5;
+    // const sort = req.query.sort
+    const data = await getAllReviews(id, page, count); // call the getAllReviews async function
     // do not continue until AFTER the await above
     res.send('Review Get Request', data); // return the data (if we got it)
   } catch (err) { // if something goes wrong with the await process
