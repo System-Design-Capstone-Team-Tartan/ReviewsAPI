@@ -8,27 +8,26 @@ app.listen(port, () => {
   console.log(`Server Running at: http://localhost:${port}`);
 });
 
-// getAllReviews = imported model
-const getAllReviews = (id) => {
-  return new Promise((resolve) => {
-    // model to get data from db
-    resolve('DATA FROM MODEL GOES HERE', id);
-  });
-};
-
-async function getAll(id) {
-  const data = await getAllReviews(id);
-  return data;
-}
-
 app.get('/', (req, res) => {
   res.send('Test Index');
 });
 
-app.get('/reviews/', (req, res) => {
+// getAllReviews = imported model
+const getAllReviews = async (id) => {
+  // const data = await (model to get data from db)
+  console.log(id); // this is temp to hush airbnb
+  return id; // return data
+};
+
+app.get('/reviews/', async (req, res) => { // async says this callback function has an await
   // page, count, sort, product_id
-  const data = getAll(req.body.product_id);
-  res.send('Review Get Request', data);
+  try { // try this first - attempt the await function
+    const data = await getAllReviews(req.body.product_id); // call the getAllReviews async function
+    // do not continue until AFTER the await above
+    res.send('Review Get Request', data); // return the data (if we got it)
+  } catch (err) { // if something goes wrong with the await process
+    res.send('Error', err); // return error
+  }
 });
 
 app.get('/reviews/meta', (req, res) => {
