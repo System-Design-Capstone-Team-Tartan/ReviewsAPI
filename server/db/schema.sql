@@ -1,10 +1,9 @@
-DROP TABLE IF EXISTS CHARACTERISTICS, REVIEW_CHARACTERISTICS, REVIEW_PHOTOS, REVIEWS, META;
 DROP TABLE IF EXISTS review, review_characteristics, characteristic, review_photos;
 
 /* Table 'review' */
 CREATE TABLE review(
   id integer NOT NULL,
-  products_id integer,
+  product_id integer,
   rating integer,
   date date,
   summary varchar,

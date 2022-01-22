@@ -1,5 +1,5 @@
 const express = require('express');
-const pool = require('./db');
+const { pool } = require('./db');
 
 const app = express();
 const port = 3000;
@@ -17,9 +17,28 @@ const getAllReviews = async (id, page, count) => {
   try {
     const endIndex = (page + 1) * count;
     const startIndex = endIndex - count;
-    const data = await pool.query(`SELECT * FROM review
-      WHERE product_id = ${id}
-      [ LIMIT { ${count} | ALL } ] [ OFFSET ${startIndex}]`);
+    console.log(count, startIndex);
+    const data = await pool.query(
+      `SELECT * FROM review
+      WHERE product_id=${id}
+      LIMIT ${count}
+      OFFSET ${startIndex}`,
+    );
+    return data; // return data
+  } catch (err) {
+    return err;
+  }
+};
+
+const getMeta = async (id) => {
+  try {
+    const data = await pool.query(
+      `SELECT rating, COUNT(rating)
+      FROM review
+      WHERE product_id=${id}
+      GROUP BY rating
+      `,
+    ); // returns {1: num1stars, 2: num2stars, etc}
     return data; // return data
   } catch (err) {
     return err;
@@ -38,15 +57,26 @@ app.get('/reviews/', async (req, res) => { // async says this callback function 
     // const sort = req.query.sort
     const data = await getAllReviews(id, page, count); // call the getAllReviews async function
     // do not continue until AFTER the await above
-    res.send('Review Get Request', data); // return the data (if we got it)
+    res.status(200).send(data); // return the data (if we got it)
   } catch (err) { // if something goes wrong with the await process
-    res.send('Error', err); // return error
+    res.status(500).send(err);
   }
 });
 
-app.get('/reviews/meta', (req, res) => {
+app.get('/reviews/meta', async (req, res) => {
   // product_id
-  res.send('Review Meta Get Request');
+  try { // try this first - attempt the await function
+    const id = req.query.product_id || 1;
+    if (id === -1) {
+      res.send('Bad Request');
+    }
+    // const sort = req.query.sort
+    const data = await getMeta(id); // call the getAllReviews async function
+    // do not continue until AFTER the await above
+    res.status(200).send(data); // return the data (if we got it)
+  } catch (err) { // if something goes wrong with the await process
+    res.status(500).send(err); // return error
+  }
 });
 
 app.post('/reviews', (req, res) => {
